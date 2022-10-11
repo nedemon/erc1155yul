@@ -102,7 +102,7 @@ object "Token" {
                 revertIfZeroAddress(to)
                 deductFromBalanceToken(from, id, amount)
                 addToBalanceToken(to, id, amount)
-                emitTransfer(caller(), from, to, id, amount)
+                emitTransfer(caller(), from, to, id, amount)                
             }
             
 
@@ -184,7 +184,9 @@ object "Token" {
                 o := sload(ownerPos())
             }
             function setApprovalForAll(operator, approved) {
+                if eq(caller(), operator) { revert(0, 0) }
                 sstore(operatorApprovalsStorageOffset(caller(), operator), approved)
+                ApprovalForAll(caller(), operator, approved)
             }
 
             function isApprovedForAll(account, operator) -> approved {
@@ -192,6 +194,7 @@ object "Token" {
             }
 
             function balanceOfToken(account, tokenid) -> bal {
+                revertIfZeroAddress(account)
                 bal := sload(balancesStorageOffset(account, tokenid))
             }
             function addToBalanceToken(account, tokenid, amount) {
