@@ -51,6 +51,19 @@ object "Token" {
             }
             case 0x2eb2c2d6 /* "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)" */ {
                 //TODO: parsing calldata arrays and returning arrays
+                let from := decodeAsAddress(0)
+                let to := decodeAsAddress(1)
+                revertIfZeroAddress(from)
+                revertIfZeroAddress(to)
+                let size1 := getCalldataArraySize(2)
+                let size2 := getCalldataArraySize(3)
+                if eq(eq(size1, size2),0) { revert(0, 0) }
+                for {let i:= 0 } lt(i,size1) {i := add(i, 1)}
+                {
+                    let tokenid := getCalldataArrayElement(2, i)
+                    let amount := getCalldataArrayElement(3, i)
+                    executeTransferToken(from, to, tokenid, amount)
+                }
                 returnTrue()
             }
             case 0x6f24d3dd /* "getArrayElement(uint256[],uint256)" */ {

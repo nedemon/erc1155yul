@@ -330,5 +330,20 @@ describe("Caller", function () {
       expect(await caller.balanceOfBatch([owner.address,otherAccount.address], [1,2]))
       .to.eql([ethers.BigNumber.from(TEN),ethers.BigNumber.from(5)])
     });
+    it("Should have non-zero batch balance", async function () {
+      const { caller } = await loadFixture(deployOneYearLockFixture);
+      const [owner, otherAccount] = await ethers.getSigners();
+
+      let tx = await caller.mint(owner.address, 1, TEN, '0x')
+      await tx.wait()
+      tx = await caller.mint(owner.address, 2, TEN, '0x')
+      await tx.wait()
+
+      tx = await caller.safeBatchTransferFrom(owner.address,otherAccount.address, [1,2], [5,5], '0x')
+      await tx.wait()
+
+      expect(await caller.balanceOf(owner.address, 1)).to.equal(5);
+      expect(await caller.balanceOf(owner.address, 2)).to.equal(5);
+    });
   });
-});
+ });
